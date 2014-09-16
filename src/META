@@ -1,9 +1,9 @@
 # OASIS_START
-# DO NOT EDIT (digest: 92a3e83a9ca6d605e370e66c8781de61)
+# DO NOT EDIT (digest: 513daced0f9b529b163526b33abac6e3)
 version = "0.9.5"
 description = "Various Xen operations"
 requires =
-"xcp xenctrl xenstore xenstore_transport.unix uuid xenstore-compat threads"
+"xenctrl xenstore xenstore.unix xenstore_transport xenstore_transport.unix uuidm threads rpclib rpclib.syntax stringext oclock"
 archive(byte) = "xenops.cma"
 archive(byte, plugin) = "xenops.cma"
 archive(native) = "xenops.cmxa"

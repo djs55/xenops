@@ -14,6 +14,7 @@
 (** Functions relating to memory requirements of Xen domains *)
 
 open Printf
+open Xenops_utils
 
 module D = Debug.Make(struct let name = "xenops" end)
 open D
@@ -27,7 +28,7 @@ let ( /// ) = Int64.div
 
 let bytes_per_kib  = 1024L
 let bytes_per_mib  = 1048576L
-let bytes_per_page = Int64.of_int (Xenmmap.getpagesize ())
+let bytes_per_page = 4096L
 let kib_per_page   = bytes_per_page /// bytes_per_kib
 let kib_per_mib    = 1024L
 let pages_per_mib  = bytes_per_mib /// bytes_per_page
@@ -86,17 +87,6 @@ let pages_of_kib_used   value = divide_rounding_up value kib_per_page
 let mib_of_bytes_used   value = divide_rounding_up value bytes_per_mib
 let mib_of_kib_used     value = divide_rounding_up value kib_per_mib
 let mib_of_pages_used   value = divide_rounding_up value pages_per_mib
-
-(* === Host memory properties =============================================== *)
-
-let get_free_memory_kib ~xc =
-	kib_of_pages (Int64.of_nativeint (Xenctrl.physinfo xc).Xenctrl.free_pages)
-let get_scrub_memory_kib ~xc =
-	kib_of_pages (Int64.of_nativeint (Xenctrl.physinfo xc).Xenctrl.scrub_pages)
-let get_total_memory_mib ~xc =
-	mib_of_pages_free (Int64.of_nativeint ((Xenctrl.physinfo xc).Xenctrl.total_pages))
-let get_total_memory_bytes ~xc =
-	bytes_of_pages (Int64.of_nativeint ((Xenctrl.physinfo xc).Xenctrl.total_pages))
 
 (* === Domain memory breakdown ============================================== *)
 

@@ -11,16 +11,14 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *)
-open Xenops_utils
-open Xenstore
+(** Produce a string name -> string mean, standard deviation summary for each population *)
+val summarise : unit -> (string * string) list
 
-(** {2 XC, XS and XAL interface helpers.} *)
+(** Time the given function and attribute the result to the named population *)
+val time_this : string -> (unit -> 'a) -> 'a
 
-let with_xc f = Xenctrl.with_intf f
+type dbcallty = Read | Write | Create | Drop
+val log_db_call : string option -> string -> dbcallty -> unit
+val summarise_db_calls : unit -> (string list * string list * string list * string list * (string * ((string * string) list)) list * (int * ((string * string) list)) list)
 
-let with_xc_and_xs f =
-	Xenctrl.with_intf (fun xc -> with_xs (fun xs -> f xc xs))
-
-let with_xc_and_xs_final f cf =
-	with_xc_and_xs (fun xc xs -> finally (fun () -> f xc xs) cf)
-
+val log_stats : bool ref

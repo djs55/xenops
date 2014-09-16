@@ -1,5 +1,5 @@
 (*
- * Copyright (C) 2006-2009 Citrix Systems Inc.
+ * Copyright (C) Citrix Systems Inc.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
@@ -11,16 +11,25 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *)
-open Xenops_utils
-open Xenstore
 
-(** {2 XC, XS and XAL interface helpers.} *)
+let bytes_of_handle h =
+	let s = String.make 16 '\000' in
+	for i = 0 to 15 do
+		s.[i] <- char_of_int h.(i)
+	done;
+	s
 
-let with_xc f = Xenctrl.with_intf f
+let uuid_of_handle h =
+	let h' = bytes_of_handle h in
+	match Uuidm.of_bytes h' with
+	| Some x -> x
+	| None -> failwith (Printf.sprintf "VM handle '%s' is in invalid uuid" h')
 
-let with_xc_and_xs f =
-	Xenctrl.with_intf (fun xc -> with_xs (fun xs -> f xc xs))
-
-let with_xc_and_xs_final f cf =
-	with_xc_and_xs (fun xc xs -> finally (fun () -> f xc xs) cf)
+let handle_of_uuid u =
+	let s = Uuidm.to_bytes u in
+	let h = Array.make 16 0 in
+	for i = 0 to 15 do
+		h.(i) <- int_of_char s.[i]
+	done;
+	h
 

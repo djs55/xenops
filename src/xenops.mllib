@@ -1,9 +1,30 @@
 # OASIS_START
-# DO NOT EDIT (digest: 9b02afdc189c9999f97db773ac344387)
+# DO NOT EDIT (digest: 69111e207cc0f7ecf354e60bcf806e88)
+Debug
 Io
 Memory
 Netman
 Statdev
 Xenops_helpers
+Xenstore
 Xenstore_watch
+Domain
+Device
+Device_common
+Xenops_task
+Xenops_utils
+Device_number
+Cancel_utils
+Watch
+Stats
+Xenopsd
+Xenbus_utils
+Xc_path
+Path
+Forkhelpers
+Xenctrl_uuid
+Scheduler
+Xenctrlext
+Mac
+Hotplug
 # OASIS_STOP

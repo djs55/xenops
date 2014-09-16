@@ -1,7 +1,7 @@
 # OASIS_START
-# DO NOT EDIT (digest: 33f67f16939a16d6c4a3bab07a5863cb)
-# Ignore VCS directories, you can use the same kind of rule outside
-# OASIS_START/STOP if you want to exclude directories that contains
+# DO NOT EDIT (digest: 2d3222191d6eb251dab848165edbf163)
+# Ignore VCS directories, you can use the same kind of rule outside 
+# OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
 <**/.svn>: -traverse
 <**/.svn>: not_hygienic
@@ -24,39 +24,60 @@
 <src/*.ml{,i}>: oasis_library_xenops_native
 "src/statdev_stubs.c": oasis_library_xenops_native
 <src/xenops.{cma,cmxa}>: use_libxenops_stubs
-<src/*.ml{,i}>: pkg_threads
-<src/*.ml{,i}>: pkg_uuid
-<src/*.ml{,i}>: pkg_xcp
 <src/*.ml{,i}>: pkg_xenctrl
 <src/*.ml{,i}>: pkg_xenstore
-<src/*.ml{,i}>: pkg_xenstore-compat
+<src/*.ml{,i}>: pkg_xenstore.unix
+<src/*.ml{,i}>: pkg_xenstore_transport
 <src/*.ml{,i}>: pkg_xenstore_transport.unix
-"src/statdev_stubs.c": pkg_threads
-"src/statdev_stubs.c": pkg_uuid
-"src/statdev_stubs.c": pkg_xcp
+<src/*.ml{,i}>: pkg_uuidm
+<src/*.ml{,i}>: pkg_threads
+<src/*.ml{,i}>: pkg_rpclib
+<src/*.ml{,i}>: pkg_rpclib.syntax
+<src/*.ml{,i}>: pkg_stringext
+<src/*.ml{,i}>: pkg_oclock
 "src/statdev_stubs.c": pkg_xenctrl
 "src/statdev_stubs.c": pkg_xenstore
-"src/statdev_stubs.c": pkg_xenstore-compat
+"src/statdev_stubs.c": pkg_xenstore.unix
+"src/statdev_stubs.c": pkg_xenstore_transport
 "src/statdev_stubs.c": pkg_xenstore_transport.unix
+"src/statdev_stubs.c": pkg_uuidm
+"src/statdev_stubs.c": pkg_threads
+"src/statdev_stubs.c": pkg_rpclib
+"src/statdev_stubs.c": pkg_rpclib.syntax
+"src/statdev_stubs.c": pkg_stringext
+"src/statdev_stubs.c": pkg_oclock
 # Executable list_domains
 <list_domains/list_domains.{native,byte}>: oasis_executable_list_domains_byte
 <list_domains/*.ml{,i}>: oasis_executable_list_domains_byte
 <list_domains/list_domains.{native,byte}>: oasis_executable_list_domains_native
 <list_domains/*.ml{,i}>: oasis_executable_list_domains_native
-<list_domains/list_domains.{native,byte}>: pkg_threads
-<list_domains/list_domains.{native,byte}>: pkg_uuid
-<list_domains/list_domains.{native,byte}>: pkg_xcp
+<list_domains/list_domains.{native,byte}>: use_xenops
 <list_domains/list_domains.{native,byte}>: pkg_xenctrl
 <list_domains/list_domains.{native,byte}>: pkg_xenstore
-<list_domains/list_domains.{native,byte}>: pkg_xenstore-compat
+<list_domains/list_domains.{native,byte}>: pkg_xenstore.unix
+<list_domains/list_domains.{native,byte}>: pkg_xenstore_transport
 <list_domains/list_domains.{native,byte}>: pkg_xenstore_transport.unix
-<list_domains/list_domains.{native,byte}>: use_xenops
-<list_domains/*.ml{,i}>: pkg_threads
-<list_domains/*.ml{,i}>: pkg_uuid
-<list_domains/*.ml{,i}>: pkg_xcp
+<list_domains/list_domains.{native,byte}>: pkg_uuidm
+<list_domains/list_domains.{native,byte}>: pkg_threads
+<list_domains/list_domains.{native,byte}>: pkg_rpclib
+<list_domains/list_domains.{native,byte}>: pkg_rpclib.syntax
+<list_domains/list_domains.{native,byte}>: pkg_stringext
+<list_domains/list_domains.{native,byte}>: pkg_oclock
+<list_domains/*.ml{,i}>: use_xenops
 <list_domains/*.ml{,i}>: pkg_xenctrl
 <list_domains/*.ml{,i}>: pkg_xenstore
-<list_domains/*.ml{,i}>: pkg_xenstore-compat
+<list_domains/*.ml{,i}>: pkg_xenstore.unix
+<list_domains/*.ml{,i}>: pkg_xenstore_transport
 <list_domains/*.ml{,i}>: pkg_xenstore_transport.unix
-<list_domains/*.ml{,i}>: use_xenops
+<list_domains/*.ml{,i}>: pkg_uuidm
+<list_domains/*.ml{,i}>: pkg_threads
+<list_domains/*.ml{,i}>: pkg_rpclib
+<list_domains/*.ml{,i}>: pkg_rpclib.syntax
+<list_domains/*.ml{,i}>: pkg_stringext
+<list_domains/*.ml{,i}>: pkg_oclock
 # OASIS_STOP
+<src/device_common.ml{,.i}>: syntax_camlp4o, pkg_rpclib
+<src/domain.ml>: syntax_camlp4o, pkg_rpclib
+<src/device.ml>: syntax_camlp4o, pkg_rpclib
+<src/device_number.ml{,.i}>: syntax_camlp4o, pkg_rpclib
+<src/scheduler.ml>: syntax_camlp4o, pkg_rpclib

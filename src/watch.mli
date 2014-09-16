@@ -13,6 +13,8 @@
  *)
 (* High-level xenstore watch functions *)
 
+open Xenstore
+
 (* Examples:
      let port = Watch.wait_for ~xs (Watch.value_to_appear "/local/domain/1/vnc-port") in ...
 
@@ -44,3 +46,4 @@ exception Timeout of float
 (** Wait for a result *)
 val wait_for : xs:Xs.xsh -> ?timeout:float -> 'a t -> 'a
 
+val has_fired: xs:Xs.xsh -> 'a t -> bool

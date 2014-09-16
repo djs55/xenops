@@ -11,7 +11,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *)
-open Pervasiveext
 
 let domid = ref None
 let minimal = ref false
@@ -49,16 +48,12 @@ let hashtbl_of_domaininfo x : (string, string) Hashtbl.t =
   Hashtbl.add table "vcpus online" (int x.nr_online_vcpus);
   Hashtbl.add table "max vcpu id" (int x.max_vcpu_id);
   Hashtbl.add table "ssidref" (int32 x.ssidref);
-  Hashtbl.add table "uuid" (Uuid.to_string (Uuid.uuid_of_int_array x.handle));
+  Hashtbl.add table "uuid" (Uuidm.to_string (Xenctrl_uuid.uuid_of_handle x.handle));
   (* Ask for shadow allocation separately *)
   let shadow_mib =
-    try Some (Int64.of_int (Xenctrl.shadow_allocation_get xc_handle x.domid))
-    with _ -> None in
-  let shadow_bytes = may Memory.bytes_of_mib shadow_mib in
-  let shadow_pages = may Memory.pages_of_mib shadow_mib in
-  Hashtbl.add table "shadow bytes" (Opt.default "N/A" (may Int64.to_string shadow_bytes));
-  Hashtbl.add table "shadow pages" (Opt.default "N/A" (may Int64.to_string shadow_pages));
-  Hashtbl.add table "shadow MiB"   (Opt.default "N/A" (may Int64.to_string shadow_mib  ));
+    try Int64.to_string (Int64.of_int (Xenctrl.shadow_allocation_get xc_handle x.domid))
+    with _ -> "N/A" in
+  Hashtbl.add table "shadow MiB" shadow_mib;
   table
 
 let select table keys = 
