@@ -20,8 +20,8 @@ doc: setup.data setup.bin
 	@./setup.bin -doc -j $(J)
 
 install: setup.bin
-	install -m 755 list_domains.native ${BINDIR}/list_domains
 	@./setup.bin -install
+	install -m 755 list_domains.native ${BINDIR}/list_domains
 
 uninstall:
 	@ocamlfind remove $(NAME) || true

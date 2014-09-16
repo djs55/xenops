@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 2d3222191d6eb251dab848165edbf163)
+# DO NOT EDIT (digest: 2c9b4a9d515bfbd838b66a887c41b8a6)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -15,6 +15,33 @@
 "_darcs": not_hygienic
 # Library xenops
 "src/xenops.cmxs": use_xenops
+"src/debug.cmx": for-pack(Xenops)
+"src/io.cmx": for-pack(Xenops)
+"src/memory.cmx": for-pack(Xenops)
+"src/netman.cmx": for-pack(Xenops)
+"src/statdev.cmx": for-pack(Xenops)
+"src/xenops_helpers.cmx": for-pack(Xenops)
+"src/xenstore.cmx": for-pack(Xenops)
+"src/xenstore_watch.cmx": for-pack(Xenops)
+"src/domain.cmx": for-pack(Xenops)
+"src/device.cmx": for-pack(Xenops)
+"src/device_common.cmx": for-pack(Xenops)
+"src/xenops_task.cmx": for-pack(Xenops)
+"src/xenops_utils.cmx": for-pack(Xenops)
+"src/device_number.cmx": for-pack(Xenops)
+"src/cancel_utils.cmx": for-pack(Xenops)
+"src/watch.cmx": for-pack(Xenops)
+"src/stats.cmx": for-pack(Xenops)
+"src/xenopsd.cmx": for-pack(Xenops)
+"src/xenbus_utils.cmx": for-pack(Xenops)
+"src/xc_path.cmx": for-pack(Xenops)
+"src/path.cmx": for-pack(Xenops)
+"src/forkhelpers.cmx": for-pack(Xenops)
+"src/xenctrl_uuid.cmx": for-pack(Xenops)
+"src/scheduler.cmx": for-pack(Xenops)
+"src/xenctrlext.cmx": for-pack(Xenops)
+"src/mac.cmx": for-pack(Xenops)
+"src/hotplug.cmx": for-pack(Xenops)
 <src/*.ml{,i}>: oasis_library_xenops_ccopt
 "src/statdev_stubs.c": oasis_library_xenops_ccopt
 <src/xenops.{cma,cmxa}>: oasis_library_xenops_byte
