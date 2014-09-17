@@ -25,7 +25,9 @@ open Xenops_task
 module D = Debug.Make(struct let name = "xenops" end)
 open D
 
-let create ?(ssidref=0l) ?(hvm=false) ?(hap=false) ?uuid name =
+type t = Xenctrl.domid * Uuidm.t
+
+let create ?(ssidref=0l) ?(hvm=false) ?(hap=false) ?uuid () =
   let flags =
     []
     @ (if hvm then [ Xenctrl.CDF_HVM ] else [])
@@ -35,8 +37,87 @@ let create ?(ssidref=0l) ?(hvm=false) ?(hap=false) ?uuid name =
   | Some x -> x in
   Xenctrl.with_intf
     (fun xc ->
-      Xenctrl.domain_create xc ssidref flags (Uuidm.to_string uuid)
+      Xenctrl.domain_create xc ssidref flags (Uuidm.to_string uuid), uuid
     )
+
+(* Recursively iterate over a directory and all its children, calling fn for each *)
+let rec xenstore_iter t fn path =
+  fn path;
+  match t.Xst.directory path with
+  | [] -> ()
+  | names -> List.iter (fun n -> if n <> "" then xenstore_iter t fn (path ^ "/" ^ n)) names
+
+let create_xenstore_tree ?name ?(xsdata=[]) ?(platformdata=[]) ?(bios_strings=[]) (domid, uuid) =
+  let name = match name with
+  | None -> "Domain: " ^ (string_of_int domid)
+  | Some x -> x in
+  with_xc_and_xs
+    (fun xc xs ->
+      let dom_path = xs.Xs.getdomainpath domid in
+      let vm_path = "/vm/" ^ (Uuidm.to_string uuid) in
+      let vss_path = "/vss/" ^ (Uuidm.to_string uuid) in
+      let roperm = Xenbus_utils.roperm_for_guest domid in
+      let rwperm = Xenbus_utils.rwperm_for_guest domid in
+
+      let create_time = Oclock.gettime Oclock.monotonic in
+      Xs.transaction xs (fun t ->
+        (* Clear any existing rubbish in xenstored *)
+        t.Xst.rm dom_path;
+        t.Xst.mkdir dom_path;
+        t.Xst.setperms dom_path roperm;
+
+        (* The /vm path needs to be shared over a localhost migrate *)
+        let vm_exists = try ignore(t.Xst.read vm_path); true with _ -> false in
+        if vm_exists
+        then xenstore_iter t (fun d -> t.Xst.setperms d roperm) vm_path
+        else begin
+          t.Xst.mkdir vm_path;
+          t.Xst.setperms vm_path roperm;
+          t.Xst.writev vm_path [
+            "uuid", (Uuidm.to_string uuid);
+            "name", name;
+          ];
+          end;
+          t.Xst.write (Printf.sprintf "%s/domains/%d" vm_path domid) dom_path;
+          t.Xst.write (Printf.sprintf "%s/domains/%d/create-time" vm_path domid) (Int64.to_string create_time);
+
+          t.Xst.rm vss_path;
+          t.Xst.mkdir vss_path;
+          t.Xst.setperms vss_path rwperm;
+
+          t.Xst.write (dom_path ^ "/vm") vm_path;
+          t.Xst.write (dom_path ^ "/vss") vss_path;
+          t.Xst.write (dom_path ^ "/name") name;
+
+          (* create cpu and memory directory with read only perms *)
+          List.iter (fun dir ->
+            let ent = sprintf "%s/%s" dom_path dir in
+            t.Xst.mkdir ent;
+            t.Xst.setperms ent roperm
+          ) [ "cpu"; "memory" ];
+          (* create read/write nodes for the guest to use *)
+          List.iter (fun dir ->
+            let ent = sprintf "%s/%s" dom_path dir in
+            t.Xst.mkdir ent;
+            t.Xst.setperms ent rwperm
+          ) [ "device"; "error"; "drivers"; "control"; "attr"; "data"; "messages"; "vm-data"; "hvmloader"; "rrd" ];
+      );
+
+      xs.Xs.writev dom_path xsdata;
+      xs.Xs.writev (dom_path ^ "/platform") platformdata;
+	
+      xs.Xs.writev (dom_path ^ "/bios-strings") bios_strings;
+
+      (* If a toolstack sees a domain which it should own in this state then the
+         domain is not completely setup and should be shutdown. *)
+      xs.Xs.write (dom_path ^ "/action-request") "poweroff";
+
+      xs.Xs.write (dom_path ^ "/control/platform-feature-multiprocessor-suspend") "1";
+
+      (* CA-30811: let the linux guest agent easily determine if this is a fresh domain even if
+         the domid hasn't changed (consider cross-host migrate) *)
+      xs.Xs.write (dom_path ^ "/unique-domain-id") (Uuidm.to_string (Uuidm.create `V4))
+  )
   
 type build_hvm_info = {
 	shadow_multiplier: float;
@@ -97,13 +178,6 @@ let assert_file_is_readable filename =
 		error "Cannot read file %s" filename;
 		raise (Could_not_read_file filename)
 let maybe f = function None -> () | Some x -> f x
-
-(* Recursively iterate over a directory and all its children, calling fn for each *)
-let rec xenstore_iter t fn path =
-	fn path;
-	match t.Xst.directory path with
-	| [] -> ()
-	| names -> List.iter (fun n -> if n <> "" then xenstore_iter t fn (path ^ "/" ^ n)) names
 
 let xenstore_read_dir t path =
 	let rec inner acc nodes =

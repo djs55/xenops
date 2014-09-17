@@ -13,13 +13,25 @@
  *)
 (** High-level domain management functions *)
 
-type domid = Xenctrl.domid
+type t
+(** A domain *)
 
-val create: ?ssidref:int32 -> ?hvm:bool -> ?hap:bool -> ?uuid:Uuidm.t -> string -> domid
-(** [create ?ssidref ?hvm ?hap ?uuid name] creates an empty domain with
+val create: ?ssidref:int32 -> ?hvm:bool -> ?hap:bool -> ?uuid:Uuidm.t -> unit -> t
+(** [create ?ssidref ?hvm ?hap ?uuid ()] creates an empty domain with
     no memory or vCPUs in the paused state. *)
 
+val create_xenstore_tree:
+  ?name:string ->
+  ?xsdata:(string * string) list ->
+  ?platformdata:(string * string) list ->
+  ?bios_strings:(string * string) list ->
+  t -> unit
+(** [create_xenstore_tree ?name t] populates the default xenstore tree for
+    a domain [t] *)
+
 open Device_common
+
+type domid = Xenctrl.domid
 
 exception Suspend_image_failure
 exception Not_enough_memory of int64
