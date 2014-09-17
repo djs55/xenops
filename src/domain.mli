@@ -13,9 +13,13 @@
  *)
 (** High-level domain management functions *)
 
-open Device_common
-
 type domid = Xenctrl.domid
+
+val create: ?ssidref:int32 -> ?hvm:bool -> ?hap:bool -> ?uuid:Uuidm.t -> string -> domid
+(** [create ?ssidref ?hvm ?hap ?uuid name] creates an empty domain with
+    no memory or vCPUs in the paused state. *)
+
+open Device_common
 
 exception Suspend_image_failure
 exception Not_enough_memory of int64
@@ -25,18 +29,6 @@ exception Xenguest_protocol_failure of string (* internal protocol failure *)
 exception Xenguest_failure of string (* an actual error is reported to us *)
 exception Timeout_backend
 exception Could_not_read_file of string (* eg linux kernel/ initrd *)
-
-type create_info = {
-	ssidref: int32;
-	hvm: bool;
-	hap: bool;
-	name: string;
-	xsdata: (string * string) list;
-	platformdata: (string * string) list;
-	bios_strings: (string * string) list;
-}
-val create_info_of_rpc: Rpc.t -> create_info
-val rpc_of_create_info: create_info -> Rpc.t
 
 type build_hvm_info = {
 	shadow_multiplier: float;
@@ -70,9 +62,6 @@ type domarch = Arch_HVM | Arch_native | Arch_X64 | Arch_X32
 
 val string_of_domarch : domarch -> string
 val domarch_of_string : string -> domarch
-
-(** Create a fresh (empty) domain with a specific UUID, returning the domain ID *)
-val make: xc:Xenctrl.handle -> xs:Xenstore.Xs.xsh -> create_info -> Uuidm.t -> domid
 
 (** 'types' of shutdown request *)
 type shutdown_reason = PowerOff | Reboot | Suspend | Crash | Halt | S3Suspend | Unknown of int

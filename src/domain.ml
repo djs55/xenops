@@ -25,16 +25,19 @@ open Xenops_task
 module D = Debug.Make(struct let name = "xenops" end)
 open D
 
-type create_info = {
-	ssidref: int32;
-	hvm: bool;
-	hap: bool;
-	name: string;
-	xsdata: (string * string) list;
-	platformdata: (string * string) list;
-	bios_strings: (string * string) list;
-} with rpc
-
+let create ?(ssidref=0l) ?(hvm=false) ?(hap=false) ?uuid name =
+  let flags =
+    []
+    @ (if hvm then [ Xenctrl.CDF_HVM ] else [])
+    @ (if hap then [ Xenctrl.CDF_HAP ] else []) in
+  let uuid = match uuid with
+  | None -> Uuidm.create `V4
+  | Some x -> x in
+  Xenctrl.with_intf
+    (fun xc ->
+      Xenctrl.domain_create xc ssidref flags (Uuidm.to_string uuid)
+    )
+  
 type build_hvm_info = {
 	shadow_multiplier: float;
 	video_mib: int;
@@ -163,6 +166,15 @@ let wait_xen_free_mem ~xc ?(maximum_wait_time_seconds=64) required_memory_kib : 
 		end in
 	wait 0
 
+type create_info = {
+	ssidref: int32;
+	hvm: bool;
+	hap: bool;
+	name: string;
+	xsdata: (string * string) list;
+	platformdata: (string * string) list;
+	bios_strings: (string * string) list;
+  } with rpc
 
 let make ~xc ~xs vm_info uuid =
 	let flags = if vm_info.hvm then begin
