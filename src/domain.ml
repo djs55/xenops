@@ -118,6 +118,12 @@ let create_xenstore_tree ?name ?(xsdata=[]) ?(platformdata=[]) ?(bios_strings=[]
          the domid hasn't changed (consider cross-host migrate) *)
       xs.Xs.write (dom_path ^ "/unique-domain-id") (Uuidm.to_string (Uuidm.create `V4))
   )
+
+let pause (domid, _) =
+  Xenctrl.(with_intf (fun xc -> domain_pause xc domid))
+
+let unpause (domid, _) =
+  Xenctrl.(with_intf (fun xc -> domain_unpause xc domid))
   
 type build_hvm_info = {
 	shadow_multiplier: float;
@@ -560,12 +566,6 @@ let destroy (task: Xenops_task.t) ~xc ~xs ~qemu_domid domid =
 	  raise (Domain_stuck_in_dying_state domid)
 	end
 
-
-let pause ~xc domid =
-	Xenctrl.domain_pause xc domid
-
-let unpause ~xc domid =
-	Xenctrl.domain_unpause xc domid
 
 let set_action_request ~xs domid x =
 	let path = xs.Xs.getdomainpath domid ^ "/action-request" in

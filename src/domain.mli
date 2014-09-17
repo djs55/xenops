@@ -29,6 +29,12 @@ val create_xenstore_tree:
 (** [create_xenstore_tree ?name t] populates the default xenstore tree for
     a domain [t] *)
 
+val pause: t -> unit
+(** Pause a domain *)
+
+val unpause: t -> unit
+(** Unpause a domain *)
+
 open Device_common
 
 type domid = Xenctrl.domid
@@ -101,12 +107,6 @@ val sysrq: xs:Xenstore.Xs.xsh -> domid -> char -> unit
 
 (** destroy a domain *)
 val destroy: Xenops_task.Xenops_task.t -> xc: Xenctrl.handle -> xs:Xenstore.Xs.xsh -> qemu_domid:int -> domid -> unit
-
-(** Pause a domain *)
-val pause: xc: Xenctrl.handle -> domid -> unit
-
-(** Unpause a domain *)
-val unpause: xc: Xenctrl.handle -> domid -> unit
 
 (** [set_action_request xs domid None] declares this domain is fully intact.
 	Any other string is a hint to the toolstack that the domain is still broken. *)
