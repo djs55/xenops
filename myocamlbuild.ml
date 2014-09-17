@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 38a9b8cf3e20d636ffa9ccb2e445b46b) *)
+(* DO NOT EDIT (digest: d115ec20b25feb0d4f50035d77c845cf) *)
 module OASISGettext = struct
 (* # 21 "src/oasis/OASISGettext.ml" *)
 
@@ -478,12 +478,7 @@ open Ocamlbuild_plugin;;
 let package_default =
   {
      MyOCamlbuildBase.lib_ocaml = [("xenops", ["src"])];
-     lib_c =
-       [
-          ("xenops",
-            "src",
-            ["src/xc_dom.h"; "src/libelf.h"; "src/elfstructs.h"])
-       ];
+     lib_c = [("xenops", "src", [])];
      flags =
        [
           (["oasis_library_xenops_ccopt"; "compile"],
@@ -498,9 +493,7 @@ let package_default =
                       A "-ccopt";
                       A "-ggdb";
                       A "-ccopt";
-                      A "-lxenctrl";
-                      A "-ccopt";
-                      A "-lxenguest"
+                      A "-lxenctrl"
                    ])
             ]);
           (["oasis_library_xenops_byte"; "ocaml"; "link"; "byte"],
@@ -546,6 +539,6 @@ let package_default =
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default package_default;;
 
-# 550 "myocamlbuild.ml"
+# 543 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;

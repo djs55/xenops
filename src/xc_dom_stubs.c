@@ -21,6 +21,7 @@
 #include <stdint.h>
 #include <xenctrl.h>
 #include <xenguest.h>
+#include <libxl.h>
 #include "xc_dom.h"
 
 #include <caml/mlvalues.h>
@@ -52,9 +53,8 @@ static value alloc_dom(struct xc_dom_image *c_dom)
 }
 
 /* matches xenctrl_stubs.c */
-#define _H(__h) ((struct xc_interface *)(__h))
+#define _H(__h) ((xc_interface *)(__h))
 
-extern struct xc_dom_image *xc_dom_allocate(xc_interface *xch, const char *cmdline, const char *features);
 
 value stub_xc_dom_allocate(value xc, value pv_cmdline, value features)
 {
@@ -63,7 +63,7 @@ value stub_xc_dom_allocate(value xc, value pv_cmdline, value features)
     struct xc_dom_image *c_dom;
     const char *c_pv_cmdline = String_val(pv_cmdline);
     const char *c_features = String_val(features);
-    struct xc_interface *c_xc = _H(xc);
+    xc_interface *c_xc = _H(xc);
 
     c_dom = xc_dom_allocate(c_xc, c_pv_cmdline, c_features);
     if (!c_dom) caml_failwith("xc_dom_allocate failed");
@@ -80,4 +80,130 @@ value stub_set_pvh_enabled(value dom, value flag)
     CAMLreturn(Val_unit);
 }
 
+value stub_xc_dom_kernel_mem(value dom, value v_cstruct)
+{
+    CAMLparam2(dom, v_cstruct);
+    CAMLlocal3(v_ba, v_ofs, v_len);
+    struct xc_dom_image *c_dom = Dom_val(dom);
+    int ret;
+    v_ba = Field(v_cstruct, 0);
+    v_ofs = Field(v_cstruct, 1);
+    v_len = Field(v_cstruct, 2);
 
+    ret = xc_dom_kernel_mem(c_dom, Caml_ba_data_val(v_ba) + Int_val(v_ofs), Int_val(v_len));
+    if ( ret != 0) caml_failwith("xc_dom_kernel_mem");
+
+    CAMLreturn(Val_unit);
+}
+
+#define SET(field, cast)                              \
+value stub_set_##field(value dom, value x)            \
+{                                                     \
+    CAMLparam2(dom, x);                               \
+    struct xc_dom_image *c_dom = Dom_val(dom);        \
+    c_dom->field = cast(x);                           \
+    CAMLreturn(Val_unit);                             \
+}
+
+SET(flags, Int_val)
+SET(console_evtchn, Int_val)
+SET(console_domid, Int_val)
+SET(xenstore_evtchn, Int_val)
+SET(xenstore_domid, Int_val)
+SET(claim_enabled, Bool_val)
+
+value stub_xc_dom_boot_xen_init(value xc, value dom, value domid)
+{
+    CAMLparam3(xc, dom, domid);
+    struct xc_dom_image *c_dom = Dom_val(dom);
+    xc_interface *c_xc = _H(xc);
+
+    if (xc_dom_boot_xen_init(c_dom, c_xc, Int_val(domid)) != 0)
+        caml_failwith("xc_dom_boot_xen_init");
+    
+    CAMLreturn(Val_unit);
+}
+
+value stub_xc_dom_rambase_init(value dom)
+{
+    CAMLparam1(dom);
+    struct xc_dom_image *c_dom = Dom_val(dom);
+#ifdef __arm__
+    if (xc_dom_rambase_init(c_dom, GUEST_RAM_BASE) != 0 )
+        caml_failwith("xc_dom_rambase");
+#endif
+    CAMLreturn(Val_unit);
+}
+
+#define DO(fn)                                    \
+value stub_##fn(value dom)                        \
+{                                                 \
+    CAMLparam1(dom);                              \
+    struct xc_dom_image *c_dom = Dom_val(dom);    \
+    if (fn(c_dom) != 0)                           \
+        caml_failwith("fn");                      \
+    CAMLreturn(Val_unit);                         \
+}
+
+DO(xc_dom_parse_image);
+DO(xc_dom_boot_mem_init);
+DO(xc_dom_build_image);
+DO(xc_dom_boot_image);
+DO(xc_dom_gnttab_init);
+
+#define libxl__gc void
+extern
+int libxl__arch_domain_init_hw_description(libxl__gc *gc,
+                                           libxl_domain_build_info *info,
+                                           struct xc_dom_image *dom);
+
+static libxl_ctx *get_ctx() {
+    int ret;
+    static libxl_ctx *ctx = NULL;
+
+    if (!ctx) {
+      ret = libxl_ctx_alloc(&ctx, 0, 0, NULL);
+      if (ret != 0) caml_failwith("libxl_ctx_alloc");
+    }
+    return ctx;
+}
+
+static libxl__gc get_gc(){
+    libxl_ctx *ctx = get_ctx();
+    return (void*) ctx + sizeof(void*) * 3;
+}
+
+value stub_libxl__arch_domain_init_hw_description(value dom)
+{
+    CAMLparam1(dom);
+    struct xc_dom_image *c_dom = Dom_val(dom);
+    libxl_domain_build_info info;
+    info.type = LIBXL_DOMAIN_TYPE_PV;
+    info.max_vcpus = 1;
+    info.cmdline = NULL;
+    libxl__gc *gc = get_gc();
+
+    if (libxl__arch_domain_init_hw_description(gc, &info, c_dom) != 0)
+        caml_failwith("libxl__arch_domain_init_hw_description");
+
+    CAMLreturn(Val_unit);
+}
+
+extern
+int libxl__arch_domain_finalise_hw_description(libxl__gc *gc,
+                                               libxl_domain_build_info *info,
+                                               struct xc_dom_image *dom)
+
+value stub_libxl__arch_domain_finalise_hw_description(value dom)
+{
+    CAMLparam1(dom);
+    struct xc_dom_image *c_dom = Dom_val(dom);
+    libxl_domain_build_info info;
+    info->ramdisk = NULL;
+    libxl__gc *gc = get_gc();
+
+    if (libxl__arch_domain_finalise_hw_description(gc, &info, c_dom) != 0)
+        caml_failwith("libxl__arch_domain_finalise_hw_description");
+
+    CAMLreturn(Val_unit);
+}

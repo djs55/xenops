@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: aa014d77c1d59f83cf181e8883c5b487)
+# DO NOT EDIT (digest: 2c9b4a9d515bfbd838b66a887c41b8a6)
 # Ignore VCS directories, you can use the same kind of rule outside 
 # OASIS_START/STOP if you want to exclude directories that contains 
 # useless stuff for the build process
@@ -44,15 +44,12 @@
 "src/hotplug.cmx": for-pack(Xenops)
 <src/*.ml{,i}>: oasis_library_xenops_ccopt
 "src/statdev_stubs.c": oasis_library_xenops_ccopt
-"src/xc_dom_stubs.c": oasis_library_xenops_ccopt
 <src/xenops.{cma,cmxa}>: oasis_library_xenops_byte
 <src/*.ml{,i}>: oasis_library_xenops_byte
 "src/statdev_stubs.c": oasis_library_xenops_byte
-"src/xc_dom_stubs.c": oasis_library_xenops_byte
 <src/xenops.{cma,cmxa}>: oasis_library_xenops_native
 <src/*.ml{,i}>: oasis_library_xenops_native
 "src/statdev_stubs.c": oasis_library_xenops_native
-"src/xc_dom_stubs.c": oasis_library_xenops_native
 <src/xenops.{cma,cmxa}>: use_libxenops_stubs
 <src/*.ml{,i}>: pkg_xenctrl
 <src/*.ml{,i}>: pkg_xenstore
@@ -76,17 +73,6 @@
 "src/statdev_stubs.c": pkg_rpclib.syntax
 "src/statdev_stubs.c": pkg_stringext
 "src/statdev_stubs.c": pkg_oclock
-"src/xc_dom_stubs.c": pkg_xenctrl
-"src/xc_dom_stubs.c": pkg_xenstore
-"src/xc_dom_stubs.c": pkg_xenstore.unix
-"src/xc_dom_stubs.c": pkg_xenstore_transport
-"src/xc_dom_stubs.c": pkg_xenstore_transport.unix
-"src/xc_dom_stubs.c": pkg_uuidm
-"src/xc_dom_stubs.c": pkg_threads
-"src/xc_dom_stubs.c": pkg_rpclib
-"src/xc_dom_stubs.c": pkg_rpclib.syntax
-"src/xc_dom_stubs.c": pkg_stringext
-"src/xc_dom_stubs.c": pkg_oclock
 # Executable list_domains
 <list_domains/list_domains.{native,byte}>: oasis_executable_list_domains_byte
 <list_domains/*.ml{,i}>: oasis_executable_list_domains_byte
