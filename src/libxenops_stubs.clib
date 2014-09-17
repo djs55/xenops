@@ -1,4 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 5bff36c7dacafeeae67b3e6761530434)
+# DO NOT EDIT (digest: 32245aa98491086297debcb213c5487b)
 statdev_stubs.o
+xc_dom_stubs.o
 # OASIS_STOP

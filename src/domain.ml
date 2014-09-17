@@ -124,7 +124,27 @@ let pause (domid, _) =
 
 let unpause (domid, _) =
   Xenctrl.(with_intf (fun xc -> domain_unpause xc domid))
-  
+
+let build
+  ?(mem_max_mib=256L) ?(mem_start_mib=256L) ?ramdisk ?cmdline
+  ?(store_domid=0) ?(console_domid=0) kernel (domid, uuid) =
+  ()
+(*
+            "-mode"; "linux_build";
+            "-domid"; string_of_int domid;
+            "-mem_max_mib"; Int64.to_string build_max_mib;
+            "-mem_start_mib"; Int64.to_string build_start_mib;
+            "-image"; kernel;
+            "-ramdisk"; (match ramdisk with Some x -> x | None -> "");
+            "-cmdline"; cmdline;
+            "-features"; "";
+            "-flags"; "0";
+            "-store_port"; string_of_int store_port;
+                "-store_domid"; string_of_int store_domid;
+            "-console_port"; string_of_int console_port;
+                "-console_domid"; string_of_int console_domid;
+            "-fork"; "true";
+  *)
 type build_hvm_info = {
 	shadow_multiplier: float;
 	video_mib: int;

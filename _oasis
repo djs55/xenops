@@ -16,8 +16,8 @@ Library xenops
   ByteOpt:            -bin-annot
   NativeOpt:          -bin-annot
   BuildDepends:       xenctrl, xenstore, xenstore.unix, xenstore_transport, xenstore_transport.unix, uuidm, threads, rpclib, rpclib.syntax, stringext, oclock
-  CSources:           statdev_stubs.c
-  CCOpt:              -Wno-unused-function -g -ggdb
+  CSources:           statdev_stubs.c, xc_dom_stubs.c, xc_dom.h, libelf.h, elfstructs.h
+  CCOpt:              -Wno-unused-function -g -ggdb -lxenctrl -lxenguest
 
 Executable list_domains
   CompiledObject:     best
